@@ -2,6 +2,10 @@
 
 A small pixel whale on your Windows taskbar that tells you how many DeepSeek Harness (dsh) sessions are working right now.
 
+![The lamp beside the taskbar clock](docs/images/taskbar-zoom.png)
+
+![The whole taskbar](docs/images/taskbar.png)
+
 - **Live count** — every running dsh session counts one.
 - **Red and blinking** — a session is waiting for you: a question dialog, or an approval prompt.
 - **Rolling digits** — the number rolls up when work appears and down when it finishes.
