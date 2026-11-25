@@ -1,0 +1,31 @@
+{
+  "name": "dsh-taskbar-lamp",
+  "version": "0.1.0",
+  "description": "Taskbar lamp for DeepSeek Harness: shows how many dsh sessions are running right now.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": {
+    ".": "./index.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "docs",
+    "icon.svg",
+    "lamp"
+  ],
+  "keywords": [
+    "dsh-plugin",
+    "taskbar",
+    "status"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

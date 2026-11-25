@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Taskbar lamp",
+    "description": "Shows a small pixel whale and a live count on the Windows taskbar for the dsh sessions that are currently working; the number turns red and blinks when a dialog is waiting for you.",
+    "detail": "docs/DETAIL.md"
+  }
+}

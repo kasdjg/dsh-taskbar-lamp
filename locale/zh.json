@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "任务栏小灯",
+    "description": "在 Windows 任务栏上显示一只像素鲸鱼和正在干活的 dsh 会话数；有弹窗等你确认时数字变红并闪动。",
+    "detail": "docs/DETAIL.md"
+  }
+}
