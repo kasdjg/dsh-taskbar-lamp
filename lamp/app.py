@@ -14,11 +14,6 @@ from PIL import Image, ImageDraw, ImageTk
 import render
 from state import Monitor
 
-try:
-    import pystray
-except Exception:
-    pystray = None
-
 CONFIG_PATH = os.path.join(os.path.expanduser("~"), ".dsh", "dsh-lamp.json")
 KEY = "#ff00fe"
 KEY_RGB = (255, 0, 254)
@@ -152,7 +147,6 @@ class LampApp:
         self.dark = not is_light_theme()
         self.hover = False
         self._photo = None
-        self.tray = None
         self.anim = None
 
         self.label = tk.Label(self.root, bd=0, highlightthickness=0, bg=KEY)
@@ -167,8 +161,6 @@ class LampApp:
         self._ui_tick()
         self._anim_tick()
         self._bubble_tick()
-
-        self._start_tray()
 
     # ---------- 位置 ----------
     def _clamp(self, x, y):
@@ -303,7 +295,6 @@ class LampApp:
                 changed = True
         if changed:
             self._draw()
-            self._update_tray_title()
         self.root.after(350, self._ui_tick)
 
     # ---------- 菜单 ----------
@@ -339,42 +330,7 @@ class LampApp:
         self.root.attributes("-topmost", True)
 
     def _quit(self):
-        if self.tray:
-            try:
-                self.tray.stop()
-            except Exception:
-                pass
         self.root.destroy()
-
-    # ---------- 托盘 ----------
-    def _tray_icon(self):
-        size = 32
-        img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-        d = ImageDraw.Draw(img)
-        color = (255, 56, 48) if self.snap.get("waiting") else (48, 199, 88) if self.snap.get("running") else (150, 150, 150)
-        d.ellipse([8, 8, 24, 24], fill=color)
-        return img
-
-    def _start_tray(self):
-        if pystray is None:
-            return
-        menu = pystray.Menu(
-            pystray.MenuItem("显示 / 隐藏", lambda: self.root.after(0, lambda: self._show() if not self.root.winfo_viewable() else self._hide()), default=True),
-            pystray.MenuItem("刷新", lambda: self._force_refresh()),
-            pystray.MenuItem("退出", lambda: self.root.after(0, self._quit)),
-        )
-        self.tray = pystray.Icon("dsh-lamp", self._tray_icon(), "DSH 任务灯", menu)
-        threading.Thread(target=self.tray.run, daemon=True).start()
-
-    def _update_tray_title(self):
-        if not self.tray:
-            return
-        try:
-            self.tray.title = f"DSH 任务灯：{self.snap.get('running', 0)} 个在跑" + (
-                f"，{self.snap.get('waiting', 0)} 个等你确认" if self.snap.get("waiting") else "")
-            self.tray.icon = self._tray_icon()
-        except Exception:
-            pass
 
     def run(self):
         self.root.mainloop()
