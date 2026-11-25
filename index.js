@@ -34,8 +34,8 @@ export function apply(ctx, config) {
     return
   }
 
-  const python = pickPython(config || {})
-  const script = existsSync(SCRIPT) ? SCRIPT : path.join(here, 'lamp', 'app.py')
+  const settings = config || {}
+  const python = pickPython(settings)
   let child = null
   let startedAt = 0
 
@@ -43,7 +43,7 @@ export function apply(ctx, config) {
     if (child && child.exitCode === null) return
     startedAt = Date.now()
     try {
-      child = spawn(python, [script], {
+      child = spawn(python, [SCRIPT], {
         cwd: here,
         windowsHide: true,
         stdio: 'ignore',

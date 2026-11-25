@@ -128,6 +128,18 @@ def save_pos(data):
         pass
 
 
+LOG_PATH = os.path.join(os.path.expanduser("~"), ".dsh", "dsh-lamp.log")
+
+
+def log_error(what):
+    """把异常写进日志文件：插件以无窗口方式启动，报错否则完全看不见。"""
+    try:
+        with open(LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(time.strftime("%Y-%m-%d %H:%M:%S ") + str(what) + "\n")
+    except Exception:
+        pass
+
+
 class LampApp:
     def __init__(self):
         self.root = tk.Tk()
@@ -138,19 +150,20 @@ class LampApp:
             self.root.wm_attributes("-transparentcolor", KEY)
         except Exception:
             pass
+        self.root.report_callback_exception = lambda et, ev, tb: log_error(f"callback {et.__name__}: {ev}")
 
         self.w, self.h = render.width_for(0), render.height()
         self.snap = {"running": 0, "waiting": 0, "items": [], "waiting_items": []}
         self.lock = threading.Lock()
         self.monitor = Monitor()
         self.blink = True
-        self.dark = not is_light_theme()
+        self.dark = self._theme_is_dark()
         self.hover = False
         self._photo = None
         self.anim = None
 
         self.label = tk.Label(self.root, bd=0, highlightthickness=0, bg=KEY)
-        self.label.pack()
+        self.label.pack(fill="both", expand=True)
 
         self._place_window()
         self._bind()
@@ -161,6 +174,17 @@ class LampApp:
         self._ui_tick()
         self._anim_tick()
         self._bubble_tick()
+
+    # ---------- 主题 ----------
+    @staticmethod
+    def _theme_is_dark():
+        """深浅色由插件配置通过环境变量传进来；没设就跟随系统。"""
+        choice = (os.environ.get("DSH_LAMP_THEME") or "auto").strip().lower()
+        if choice == "dark":
+            return True
+        if choice == "light":
+            return False
+        return not is_light_theme()
 
     # ---------- 位置 ----------
     def _clamp(self, x, y):
@@ -210,7 +234,6 @@ class LampApp:
             w.bind("<ButtonPress-1>", self._start_drag)
             w.bind("<B1-Motion>", self._on_move)
             w.bind("<ButtonRelease-1>", self._on_release)
-            w.bind("<Button-3>", self._menu)
 
     def _start_drag(self, e):
         self._dragging = True
@@ -297,41 +320,7 @@ class LampApp:
             self._draw()
         self.root.after(350, self._ui_tick)
 
-    # ---------- 菜单 ----------
-    def _menu(self, e):
-        m = tk.Menu(self.root, tearoff=0)
-        m.add_command(label="刷新一下", command=lambda: self._force_refresh())
-        m.add_command(label="换深色 / 浅色", command=self._toggle_theme)
-        m.add_separator()
-        m.add_command(label="隐藏到托盘", command=self._hide)
-        m.add_command(label="退出", command=self._quit)
-        try:
-            m.tk_popup(e.x_root, e.y_root)
-        finally:
-            m.grab_release()
-
-    def _force_refresh(self):
-        def run():
-            self.monitor.sessions.clear()
-            s = self.monitor.snapshot()
-            with self.lock:
-                self.snap = s
-        threading.Thread(target=run, daemon=True).start()
-
-    def _toggle_theme(self):
-        self.dark = not self.dark
-        self._draw()
-
-    def _hide(self):
-        self.root.withdraw()
-
-    def _show(self):
-        self.root.deiconify()
-        self.root.attributes("-topmost", True)
-
-    def _quit(self):
-        self.root.destroy()
-
+    # ---------- 运行 ----------
     def run(self):
         self.root.mainloop()
 
