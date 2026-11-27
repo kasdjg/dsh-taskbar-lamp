@@ -43,7 +43,7 @@ def _decode_frames(chunk):
 
 class SessionState:
     __slots__ = ("path", "workspace", "session_id", "offset", "mtime", "size",
-                 "open_turns", "calls", "results", "approvals_open", "last_seen")
+                 "open_turns", "calls", "results", "approvals_open", "last_seen", "depth")
 
     def __init__(self, path, workspace, session_id):
         self.path = path
@@ -57,11 +57,19 @@ class SessionState:
         self.results = set()
         self.approvals_open = {}
         self.last_seen = 0.0
+        self.depth = 0
 
     def _apply(self, ev):
         t = ev.get("type")
         d = ev.get("data") or {}
-        if t == "turn/start":
+        if t == "session":
+            # 子代理也是独立会话文件，但它们是父会话派出去的，不该单独计数。
+            # 注意：session 事件的字段在顶层，不像其他事件套在 data 里。
+            try:
+                self.depth = int(ev.get("delegationDepth") or 0)
+            except Exception:
+                self.depth = 0
+        elif t == "turn/start":
             self.open_turns[d.get("turn")] = ev.get("time")
             self.last_seen = time.time()
         elif t == "turn/end":
@@ -166,7 +174,7 @@ class Monitor:
         self._walk()
         running, waiting, total_wait = [], [], 0
         for s in self.sessions.values():
-            if s.running:
+            if s.running and s.depth == 0:
                 q, a = s.pending()
                 total_wait += q + a
                 running.append({"session": s.session_id, "workspace": s.name,
