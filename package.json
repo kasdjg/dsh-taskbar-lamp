@@ -1,6 +1,6 @@
 {
   "name": "dsh-taskbar-lamp",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Taskbar lamp for DeepSeek Harness: shows how many dsh sessions are running right now.",
   "type": "module",
   "private": false,
@@ -16,8 +16,13 @@
     "locale/*.json",
     "docs",
     "icon.svg",
-    "lamp"
+    "lamp/*.py",
+    "LICENSE"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kasdjg/dsh-taskbar-lamp.git"
+  },
   "keywords": [
     "dsh-plugin",
     "taskbar",
@@ -29,6 +34,7 @@
     }
   }
 }
+
 
 
 

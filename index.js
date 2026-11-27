@@ -43,7 +43,7 @@ export function apply(ctx, config) {
     if (child && child.exitCode === null) return
     startedAt = Date.now()
     try {
-      child = spawn(python, [SCRIPT], {
+      child = spawn(python, ['-B', SCRIPT], {
         cwd: here,
         windowsHide: true,
         stdio: 'ignore',
