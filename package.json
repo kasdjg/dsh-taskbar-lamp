@@ -1,6 +1,6 @@
 {
   "name": "dsh-taskbar-lamp",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Taskbar lamp for DeepSeek Harness: shows how many dsh sessions are running right now.",
   "type": "module",
   "private": false,
@@ -34,6 +34,7 @@
     }
   }
 }
+
 
 
 
